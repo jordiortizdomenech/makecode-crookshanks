@@ -1,37 +1,49 @@
 namespace SpriteKind {
     export const Life = SpriteKind.create()
 }
-sprites.onOverlap(SpriteKind.Enemy, SpriteKind.Player, function (sprite, otherSprite) {
-    music.play(music.createSong(hex`0078000408020108001c000e050046006603320000040a002d0000006400140001320002010002080004000800031d242a`), music.PlaybackMode.InBackground)
-    info.changeLifeBy(-1)
-    pause(3000)
-    info.startCountdown(time)
-})
 info.onLifeZero(function () {
     game.setGameOverMessage(false, "GAME OVER!")
     game.setGameOverScoringType(game.ScoringType.HighScore)
 })
-sprites.onOverlap(SpriteKind.Enemy, SpriteKind.Food, function (sprite, otherSprite) {
+info.onCountdownEnd(function () {
     music.play(music.createSong(hex`0078000408020108001c000e050046006603320000040a002d0000006400140001320002010002080004000800031d242a`), music.PlaybackMode.InBackground)
-    pizza.setPosition(randint(margin, scene.screenWidth() - margin), randint(margin, scene.screenHeight() - margin))
+    info.changeLifeBy(-1)
+    info.startCountdown(time)
+})
+sprites.onOverlap(SpriteKind.Enemy, SpriteKind.Food, function (sprite, otherSprite) {
+    music.play(music.melodyPlayable(music.buzzer), music.PlaybackMode.InBackground)
+    scene.cameraShake(4, 500)
+    peixet.setPosition(randint(margin, scene.screenWidth() - margin), randint(margin, scene.screenHeight() - margin))
     info.changeScoreBy(-1)
     sprite.sayText("Ha ha ha!", 500, false)
 })
+info.onScore(100, function () {
+    game.gameOver(true)
+    game.setGameOverEffect(true, effects.confetti)
+    effects.confetti.endScreenEffect()
+})
+sprites.onOverlap(SpriteKind.Enemy, SpriteKind.Player, function (sprite, otherSprite) {
+    music.play(music.melodyPlayable(music.buzzer), music.PlaybackMode.InBackground)
+    scene.cameraShake(4, 500)
+    info.changeLifeBy(-1)
+    pause(3000)
+    info.startCountdown(time)
+})
 sprites.onOverlap(SpriteKind.Player, SpriteKind.Life, function (sprite, otherSprite) {
-    sprites.destroy(otherSprite, effects.spray, 500)
-    music.play(music.melodyPlayable(music.baDing), music.PlaybackMode.InBackground)
     info.changeLifeBy(1)
+    vida.setPosition(randint(margin, scene.screenWidth() - margin), randint(margin, scene.screenHeight() - margin))
 })
 sprites.onOverlap(SpriteKind.Player, SpriteKind.Food, function (sprite, otherSprite) {
+    otherSprite.startEffect(effects.confetti, 500)
+    sprite.sayText("Miau!", 500, false)
     music.play(music.createSong(hex`0078000408020106001c00010a006400f4016400000400000000000000000000000000000000020800040008000324272a`), music.PlaybackMode.InBackground)
     info.changeScoreBy(1)
-    pizza.setPosition(randint(margin, scene.screenWidth() - margin), randint(margin, scene.screenHeight() - margin))
+    peixet.setPosition(randint(margin, scene.screenWidth() - margin), randint(margin, scene.screenHeight() - margin))
     info.startCountdown(time)
-    sprite.sayText("I like fish :)", 500, false)
 })
 let vida: Sprite = null
 let time = 0
-let pizza: Sprite = null
+let peixet: Sprite = null
 let margin = 0
 scene.setBackgroundImage(img`
     fffffffcbccffffffffffcfbddddddddddd111111111111111111111111dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddbffcddffffffcfcfffff
@@ -156,7 +168,7 @@ scene.setBackgroundImage(img`
     fffffffffffffffffffffffffffffffffbffffffbffffffffffffffffffffffbfcffffcfffffffffffffffcffffffffffffffffffffffffffffffffffffffffffffffffffffdddffffffffffccffffff
     `)
 scene.setBackgroundColor(13)
-let mySprite = sprites.create(img`
+let gato = sprites.create(img`
     e e e . . . . e e e . . . . 
     c d d c . . c d d c . . . . 
     c b d d f f d d b c . . . . 
@@ -172,10 +184,10 @@ let mySprite = sprites.create(img`
     . f d f f f d f f d f . . . 
     . f f . . f f . . f f . . . 
     `, SpriteKind.Player)
-mySprite.setPosition(randint(margin, scene.screenWidth() - margin), randint(margin, scene.screenHeight() - margin))
-mySprite.setStayInScreen(true)
-controller.moveSprite(mySprite, 125, 125)
-pizza = sprites.create(img`
+gato.setPosition(randint(margin, scene.screenWidth() - margin), randint(margin, scene.screenHeight() - margin))
+gato.setStayInScreen(true)
+controller.moveSprite(gato, 125, 125)
+peixet = sprites.create(img`
     . . . . . . . . . . . . . . . . 
     . . . . . . . . c c c c . . . . 
     . . . . . . c c d d d d c . . . 
@@ -193,10 +205,10 @@ pizza = sprites.create(img`
     . . . . . . f f f f d d d c . . 
     . . . . . . . . . . c c c . . . 
     `, SpriteKind.Food)
-pizza.setPosition(randint(margin, scene.screenWidth() - margin), randint(margin, scene.screenHeight() - margin))
+peixet.setPosition(randint(margin, scene.screenWidth() - margin), randint(margin, scene.screenHeight() - margin))
 info.setScore(0)
-margin = 10
-let veneno = sprites.create(img`
+margin = 15
+let voldemort = sprites.create(img`
     ........................
     ........................
     ........................
@@ -222,9 +234,9 @@ let veneno = sprites.create(img`
     ........................
     ........................
     `, SpriteKind.Enemy)
-veneno.setPosition(randint(margin, scene.screenWidth() - margin), randint(margin, scene.screenHeight() - margin))
-time = 5
-veneno.follow(pizza, 7)
+voldemort.setPosition(randint(margin, scene.screenWidth() - margin), randint(margin, scene.screenHeight() - margin))
+time = 15
+voldemort.follow(peixet, 5)
 info.startCountdown(time)
 info.setLife(3)
 game.onUpdateInterval(5000, function () {
@@ -253,5 +265,5 @@ game.onUpdateInterval(5000, function () {
     vida.setPosition(randint(margin, scene.screenWidth() - margin), randint(margin, scene.screenHeight() - margin))
 })
 game.onUpdateInterval(7000, function () {
-    sprites.destroyAllSpritesOfKind(SpriteKind.Life, effects.disintegrate, 200)
+    sprites.destroyAllSpritesOfKind(SpriteKind.Life)
 })
